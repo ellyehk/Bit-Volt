@@ -1,0 +1,140 @@
+<!doctype html> 
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar contraseña</title>
+
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .card {
+            max-width: 350px; margin: auto; padding: 20px;
+            border: 1px solid #ccc; border-radius: 10px;
+        }
+        input {
+            width: 100%; padding: 10px; margin: 8px 0;
+            border-radius: 8px; border: 1px solid #aaa;
+        }
+        button {
+            width: 100%; padding: 10px; margin-top: 10px;
+            background: #333; color: white; border: none; border-radius: 8px;
+            cursor: pointer;
+        }
+        button:hover { background: #444; }
+    </style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<!-- SDK EmailJS -->
+<script src="https://cdn.emailjs.com/sdk/3.8/email.min.js"></script>
+
+<script>
+    /* 👇 CAMBIA ESTO POR TU INFORMACIÓN REAL */
+    const PUBLIC_KEY = "PON_AQUI_TU_PUBLIC_KEY";
+    const SERVICE_ID = "servicio_1fsz21r";
+    const TEMPLATE_ID = "plantilla_z3wrjq9";
+
+    emailjs.init(PUBLIC_KEY);
+
+    // --------------------------
+    // 1️⃣ PANTALLA OLVIDÉ MI CONTRASEÑA
+    // --------------------------
+
+    function pantallaOlvideContrasena() {
+        document.getElementById("app").innerHTML = `
+        <div class="card">
+            <h2>Recuperación de la cuenta</h2>
+            <input type="email" id="correo1" placeholder="Escribe tu correo electrónico" />
+            <input type="email" id="correo2" placeholder="Confirma tu correo electrónico" />
+            <button onclick="enviarCorreoRecuperacion()">Mandar código</button>
+            <p id="msg"></p>
+        </div>
+        `;
+    }
+
+    // LOGICA PARA VERIFICAR + ENVIAR EMAIL
+    function enviarCorreoRecuperacion() {
+        const correo1 = document.getElementById("correo1").value.trim();
+        const correo2 = document.getElementById("correo2").value.trim();
+        const msg = document.getElementById("msg");
+
+        if (!correo1 || !correo2) {
+            msg.textContent = "⚠️ Llena ambos correos.";
+            msg.style.color = "red";
+            return;
+        }
+
+        if (correo1 !== correo2) {
+            msg.textContent = "⚠️ Los correos no coinciden.";
+            msg.style.color = "red";
+            return;
+        }
+
+        msg.textContent = "Enviando correo...";
+        msg.style.color = "black";
+
+        // Enviar EmailJS
+        emailjs.send(SERVICE_ID, TEMPLATE_ID, {
+            correo_electronico: correo1
+        })
+        .then(() => {
+            msg.textContent = "✔️ Correo enviado correctamente";
+            msg.style.color = "green";
+
+            setTimeout(() => {
+                pantallaCambiarContrasena();
+            }, 1000);
+        })
+        .catch(err => {
+            console.error(err);
+            msg.textContent = "❌ Error al enviar el correo";
+            msg.style.color = "red";
+        });
+    }
+
+    // --------------------------
+    // 2️⃣ PANTALLA CAMBIAR CONTRASEÑA
+    // --------------------------
+
+    function pantallaCambiarContrasena() {
+        document.getElementById("app").innerHTML = `
+        <div class="card">
+            <h2>Cambiar contraseña</h2>
+            <input type="password" id="pass1" placeholder="Nueva contraseña" />
+            <input type="password" id="pass2" placeholder="Confirmar contraseña" />
+            <button onclick="guardarNuevaContrasena()">Guardar</button>
+            <p id="msg2"></p>
+        </div>
+        `;
+    }
+
+    // Validaciones de contraseña
+    function guardarNuevaContrasena() {
+        const p1 = document.getElementById("pass1").value.trim();
+        const p2 = document.getElementById("pass2").value.trim();
+        const msg = document.getElementById("msg2");
+
+        if (!p1 || !p2) {
+            msg.textContent = "⚠️ Llena ambos campos.";
+            msg.style.color = "red";
+            return;
+        }
+
+        if (p1 !== p2) {
+            msg.textContent = "⚠️ Las contraseñas no coinciden.";
+            msg.style.color = "red";
+            return;
+        }
+
+        msg.textContent = "✔️ Contraseña actualizada correctamente.";
+        msg.style.color = "green";
+    }
+
+    // Mostrar primera pantalla
+    pantallaOlvideContrasena();
+</script>
+
+</body>
+</html>
